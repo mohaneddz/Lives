@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+		{
+			"name": "Physical",
+			"request": "launch",
+			"type": "dart",
+			"args": ["-d", "RMX3921"]
+		},
+		{
+			"name": "Virtual",
+			"request": "launch",
+			"type": "dart",
+			"args": ["-d", "sdk gphone16k x86 64"]
+		},
+		{
+			"name": "Release",
+			"request": "launch",
+			"type": "dart",
+			"flutterMode": "release"
+		}
+    ]
+}
