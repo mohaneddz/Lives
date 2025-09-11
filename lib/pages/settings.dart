@@ -10,7 +10,7 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/logo.png', width: MediaQuery.of(context).size.width, height: 200, fit: BoxFit.contain),
+            Image.asset('assets/logo.png', width: MediaQuery.of(context).size.width, height: 200, fit: BoxFit.contain),
             const SizedBox(height: 20),
           ],
         ),

@@ -1,21 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:lives/pages/home.dart';
 import 'package:lives/pages/account.dart';
+import '../../bloc/navigation/navigation_bloc.dart';
+import '../../bloc/navigation/navigation_state.dart';
 
 class Content extends StatelessWidget {
-  final int index;
-  const Content({super.key, required this.index});
+  const Content({super.key});
 
   @override
   Widget build(BuildContext context) {
-    switch (index) {
-      case 0:
-        return const HomeScreen();
-      case 1:
-        return const AccountScreen();
-      default:
-        return const HomeScreen();
-    }
+    return BlocBuilder<NavigationBloc, NavigationState>(
+      builder: (context, state) {
+        switch (state.selectedItem) {
+          case NavigationItem.home:
+            return const HomeScreen();
+          case NavigationItem.account:
+            return const AccountScreen();
+        }
+      },
+    );
   }
 }
