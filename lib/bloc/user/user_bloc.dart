@@ -10,22 +10,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   Future<void> _onLoadUser(LoadUser event, Emitter<UserState> emit) async {
     emit(state.copyWith(status: UserStatus.loading));
-    
+
     try {
       // Simulate loading user data
       await Future.delayed(const Duration(seconds: 2));
-      
-      emit(state.copyWith(
-        status: UserStatus.loaded,
-        name: 'John Doe',
-        email: 'john.doe@example.com',
-        isOnline: true,
-      ));
+
+      emit(
+        state.copyWith(
+          status: UserStatus.loaded,
+          name: 'John Doe',
+          email: 'john.doe@example.com',
+          isOnline: true,
+        ),
+      );
     } catch (e) {
-      emit(state.copyWith(
-        status: UserStatus.error,
-        errorMessage: 'Failed to load user data',
-      ));
+      emit(
+        state.copyWith(
+          status: UserStatus.error,
+          errorMessage: 'Failed to load user data',
+        ),
+      );
     }
   }
 

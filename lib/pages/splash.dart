@@ -19,20 +19,16 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation
     _animationController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
     );
-    
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeIn,
-    ));
+
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
+    );
 
     // Start animation
     _animationController.forward();
@@ -44,10 +40,10 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> _initializeApp() async {
     // Load user data
     context.read<UserBloc>().add(LoadUser());
-    
+
     // Wait for splash screen duration
     await Future.delayed(const Duration(seconds: 3));
-    
+
     // Navigate to main app
     if (mounted) {
       Navigator.of(context).pushReplacementNamed('/main');
@@ -88,7 +84,9 @@ class _SplashScreenState extends State<SplashScreen>
               Text(
                 'Your Life Management Hub',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.color?.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 40),

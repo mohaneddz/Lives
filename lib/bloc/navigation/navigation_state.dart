@@ -11,8 +11,6 @@ class NavigationState extends Equatable {
   List<Object> get props => [selectedItem];
 
   NavigationState copyWith({NavigationItem? selectedItem}) {
-    return NavigationState(
-      selectedItem: selectedItem ?? this.selectedItem,
-    );
+    return NavigationState(selectedItem: selectedItem ?? this.selectedItem);
   }
 }

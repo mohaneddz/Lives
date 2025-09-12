@@ -18,11 +18,11 @@ class UserState extends Equatable {
   });
 
   const UserState.initial()
-      : status = UserStatus.loading,
-        name = '',
-        email = '',
-        isOnline = false,
-        errorMessage = null;
+    : status = UserStatus.loading,
+      name = '',
+      email = '',
+      isOnline = false,
+      errorMessage = null;
 
   @override
   List<Object?> get props => [status, name, email, isOnline, errorMessage];

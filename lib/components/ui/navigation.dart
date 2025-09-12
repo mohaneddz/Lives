@@ -19,9 +19,7 @@ class MySideNavigation extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-            ),
+            decoration: BoxDecoration(color: Theme.of(context).primaryColor),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -36,14 +34,14 @@ class MySideNavigation extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   'Your Life Management Hub',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white70,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
                 ),
               ],
             ),
           ),
-          
+
           // Navigation Items
           Expanded(
             child: BlocBuilder<NavigationBloc, NavigationState>(
@@ -65,7 +63,8 @@ class MySideNavigation extends StatelessWidget {
                       context,
                       icon: LucideIcons.user,
                       title: 'Account',
-                      isSelected: navState.selectedItem == NavigationItem.account,
+                      isSelected:
+                          navState.selectedItem == NavigationItem.account,
                       onTap: () {
                         context.read<NavigationBloc>().add(NavigateToAccount());
                         Navigator.of(context).pop();
@@ -76,7 +75,7 @@ class MySideNavigation extends StatelessWidget {
               },
             ),
           ),
-          
+
           // User Status Section
           Container(
             padding: const EdgeInsets.all(16),
@@ -95,7 +94,9 @@ class MySideNavigation extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: userState.isOnline ? Colors.green : Colors.grey,
+                        backgroundColor: userState.isOnline
+                            ? Colors.green
+                            : Colors.grey,
                         child: Icon(
                           LucideIcons.user,
                           color: Colors.white,
@@ -109,9 +110,8 @@ class MySideNavigation extends StatelessWidget {
                           children: [
                             Text(
                               userState.name,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
                             ),
                             Row(
                               children: [
@@ -120,15 +120,20 @@ class MySideNavigation extends StatelessWidget {
                                   height: 8,
                                   margin: const EdgeInsets.only(right: 6),
                                   decoration: BoxDecoration(
-                                    color: userState.isOnline ? Colors.green : Colors.grey,
+                                    color: userState.isOnline
+                                        ? Colors.green
+                                        : Colors.grey,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                                 Text(
                                   userState.isOnline ? 'Online' : 'Offline',
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: userState.isOnline ? Colors.green : Colors.grey,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: userState.isOnline
+                                            ? Colors.green
+                                            : Colors.grey,
+                                      ),
                                 ),
                               ],
                             ),
@@ -154,7 +159,11 @@ class MySideNavigation extends StatelessWidget {
                       CircleAvatar(
                         radius: 20,
                         backgroundColor: Colors.grey,
-                        child: Icon(LucideIcons.userX, color: Colors.white, size: 20),
+                        child: Icon(
+                          LucideIcons.userX,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                       ),
                       SizedBox(width: 12),
                       Text('Error loading user'),
@@ -179,12 +188,16 @@ class MySideNavigation extends StatelessWidget {
     return ListTile(
       leading: Icon(
         icon,
-        color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).iconTheme.color,
+        color: isSelected
+            ? Theme.of(context).primaryColor
+            : Theme.of(context).iconTheme.color,
       ),
       title: Text(
         title,
         style: TextStyle(
-          color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).textTheme.bodyLarge?.color,
+          color: isSelected
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).textTheme.bodyLarge?.color,
           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
         ),
       ),
