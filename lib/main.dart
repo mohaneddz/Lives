@@ -61,20 +61,14 @@ class AppDrawer extends StatelessWidget {
         padding: EdgeInsets.zero,
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-            ),
+            decoration: BoxDecoration(color: AppColors.primary),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person,
-                    color: AppColors.primary,
-                    size: 30,
-                  ),
+                  child: Icon(Icons.person, color: AppColors.primary, size: 30),
                 ),
                 SizedBox(height: 16),
                 Text(
@@ -87,10 +81,7 @@ class AppDrawer extends StatelessWidget {
                 ),
                 Text(
                   'Humanitarian Aid',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
                 ),
               ],
             ),
@@ -108,7 +99,9 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Saved Places feature coming soon')),
+                const SnackBar(
+                  content: Text('Saved Places feature coming soon'),
+                ),
               );
             },
           ),
@@ -128,7 +121,9 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Report Issue feature coming soon')),
+                const SnackBar(
+                  content: Text('Report Issue feature coming soon'),
+                ),
               );
             },
           ),
@@ -149,7 +144,9 @@ class AppDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Help & Support feature coming soon')),
+                const SnackBar(
+                  content: Text('Help & Support feature coming soon'),
+                ),
               );
             },
           ),

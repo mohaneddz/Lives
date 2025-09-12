@@ -3,7 +3,8 @@ import 'navigation_event.dart';
 import 'navigation_state.dart';
 
 class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
-  NavigationBloc() : super(const NavigationState(selectedItem: NavigationItem.home)) {
+  NavigationBloc()
+    : super(const NavigationState(selectedItem: NavigationItem.home)) {
     on<NavigateToHome>(_onNavigateToHome);
     on<NavigateToAccount>(_onNavigateToAccount);
   }
@@ -12,7 +13,10 @@ class NavigationBloc extends Bloc<NavigationEvent, NavigationState> {
     emit(state.copyWith(selectedItem: NavigationItem.home));
   }
 
-  void _onNavigateToAccount(NavigateToAccount event, Emitter<NavigationState> emit) {
+  void _onNavigateToAccount(
+    NavigateToAccount event,
+    Emitter<NavigationState> emit,
+  ) {
     emit(state.copyWith(selectedItem: NavigationItem.account));
   }
 }
