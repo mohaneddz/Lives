@@ -15,7 +15,7 @@ class Content extends StatelessWidget {
       builder: (context, state) {
         switch (state.selectedItem) {
           case NavigationItem.home:
-            return const HomeScreen();
+            return const MapPage();
           case NavigationItem.account:
             return const AccountScreen();
         }

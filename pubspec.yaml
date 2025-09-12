@@ -9,6 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.1
 
   cupertino_icons: ^1.0.8
   lucide_icons: ^0.257.0
@@ -29,6 +31,7 @@ flutter_icons:
 flutter_native_splash:
   color: "#ffffff"
   image: "assets/logo.png"
+
 
 flutter:
   uses-material-design: true
