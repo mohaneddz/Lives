@@ -89,16 +89,19 @@ class MySideNavigation extends StatelessWidget {
             ),
             child: BlocBuilder<UserBloc, UserState>(
               builder: (context, userState) {
-                if (userState.status == UserStatus.loaded) {
+                if (userState.status == UserStatus.loaded &&
+                    userState.isAuthenticated) {
                   return Row(
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: userState.isOnline
-                            ? Colors.green
-                            : Colors.grey,
+                        backgroundColor: userState.isEmailVerified
+                            ? (userState.isOnline ? Colors.green : Colors.blue)
+                            : Colors.orange,
                         child: Icon(
-                          LucideIcons.user,
+                          userState.isEmailVerified
+                              ? LucideIcons.user
+                              : LucideIcons.userX,
                           color: Colors.white,
                           size: 20,
                         ),
@@ -112,7 +115,15 @@ class MySideNavigation extends StatelessWidget {
                               userState.name,
                               style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.w600),
+                              overflow: TextOverflow.ellipsis,
                             ),
+                            if (userState.email.isNotEmpty)
+                              Text(
+                                userState.email,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(color: Colors.grey[600]),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             Row(
                               children: [
                                 Container(
@@ -120,19 +131,27 @@ class MySideNavigation extends StatelessWidget {
                                   height: 8,
                                   margin: const EdgeInsets.only(right: 6),
                                   decoration: BoxDecoration(
-                                    color: userState.isOnline
-                                        ? Colors.green
-                                        : Colors.grey,
+                                    color: userState.isEmailVerified
+                                        ? (userState.isOnline
+                                              ? Colors.green
+                                              : Colors.blue)
+                                        : Colors.orange,
                                     shape: BoxShape.circle,
                                   ),
                                 ),
                                 Text(
-                                  userState.isOnline ? 'Online' : 'Offline',
+                                  userState.isEmailVerified
+                                      ? (userState.isOnline
+                                            ? 'Online • Verified'
+                                            : 'Offline • Verified')
+                                      : 'Email not verified',
                                   style: Theme.of(context).textTheme.bodySmall
                                       ?.copyWith(
-                                        color: userState.isOnline
-                                            ? Colors.green
-                                            : Colors.grey,
+                                        color: userState.isEmailVerified
+                                            ? (userState.isOnline
+                                                  ? Colors.green
+                                                  : Colors.blue)
+                                            : Colors.orange,
                                       ),
                                 ),
                               ],
@@ -153,12 +172,44 @@ class MySideNavigation extends StatelessWidget {
                       Text('Loading...'),
                     ],
                   );
+                } else if (userState.status == UserStatus.unauthenticated) {
+                  return Row(
+                    children: [
+                      const CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Colors.grey,
+                        child: Icon(
+                          LucideIcons.user,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userState.name,
+                              style: Theme.of(context).textTheme.bodyMedium
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                            Text(
+                              'Not authenticated',
+                              style: Theme.of(context).textTheme.bodySmall
+                                  ?.copyWith(color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
                 } else {
                   return const Row(
                     children: [
                       CircleAvatar(
                         radius: 20,
-                        backgroundColor: Colors.grey,
+                        backgroundColor: Colors.red,
                         child: Icon(
                           LucideIcons.userX,
                           color: Colors.white,

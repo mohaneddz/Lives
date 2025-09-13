@@ -1,12 +1,11 @@
 // lib/main.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:lives/components/ui/navigation.dart';
 import 'bloc/map/map_bloc.dart';
 import 'bloc/navigation/navigation_bloc.dart';
 import 'bloc/user/user_bloc.dart';
 import 'bloc/user/user_event.dart';
-import 'pages/home.dart';
+import 'pages/main_app.dart';
 import 'styles/app_colors.dart';
 
 void main() {
@@ -51,9 +50,6 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const MySideNavigation(), // Your existing drawer
-      body: const MapPage(),
-    );
+    return const MainAppScreen();
   }
 }

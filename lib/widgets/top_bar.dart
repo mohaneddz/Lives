@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../styles/app_colors.dart';
-import '../styles/app_text_styles.dart';
 import 'search_bar.dart';
 import 'filter_button.dart';
 
@@ -8,11 +7,7 @@ class TopBar extends StatelessWidget {
   final VoidCallback? onMenuTap;
   final VoidCallback? onNotificationTap;
 
-  const TopBar({
-    super.key,
-    this.onMenuTap,
-    this.onNotificationTap,
-  });
+  const TopBar({super.key, this.onMenuTap, this.onNotificationTap});
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +31,13 @@ class TopBar extends StatelessWidget {
               // Menu Button
               IconButton(
                 onPressed: onMenuTap,
-                icon: const Icon(
-                  Icons.menu,
-                  color: AppColors.onSurface,
-                ),
+                icon: const Icon(Icons.menu, color: AppColors.onSurface),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-              
+
               const SizedBox(width: 16),
-              
+
               // Title Section
               const Expanded(
                 child: Column(
@@ -69,7 +61,7 @@ class TopBar extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Notification Button
               IconButton(
                 onPressed: onNotificationTap,
@@ -99,15 +91,13 @@ class TopBar extends StatelessWidget {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Search and Filter Row
           const Row(
             children: [
-              Expanded(
-                child: CustomSearchBar(),
-              ),
+              Expanded(child: CustomSearchBar()),
               SizedBox(width: 12),
               FilterButton(),
             ],
