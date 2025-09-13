@@ -7,9 +7,6 @@ class MainAppScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      drawer: const MySideNavigation(),
-      body: const Content(),
-    );
+    return Scaffold(drawer: const MySideNavigation(), body: const Content());
   }
 }
