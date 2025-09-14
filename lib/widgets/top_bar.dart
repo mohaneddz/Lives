@@ -2,31 +2,38 @@ import 'package:flutter/material.dart';
 import '../styles/app_colors.dart';
 import 'search_bar.dart';
 import 'filter_button.dart';
+import 'sos_button.dart';
 
 class TopBar extends StatelessWidget {
   final VoidCallback? onMenuTap;
   final VoidCallback? onNotificationTap;
+  final VoidCallback? onSOSTap;
 
-  const TopBar({super.key, this.onMenuTap, this.onNotificationTap});
+  const TopBar({
+    super.key,
+    this.onMenuTap,
+    this.onNotificationTap,
+    this.onSOSTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+    return Column(
+      children: [
+        // Header Section with original styling
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          // Header Row
-          Row(
+          child: Row(
             children: [
               // Menu Button
               IconButton(
@@ -35,9 +42,9 @@ class TopBar extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
-
+              
               const SizedBox(width: 16),
-
+              
               // Title Section
               const Expanded(
                 child: Column(
@@ -61,7 +68,7 @@ class TopBar extends StatelessWidget {
                   ],
                 ),
               ),
-
+              
               // Notification Button
               IconButton(
                 onPressed: onNotificationTap,
@@ -89,21 +96,28 @@ class TopBar extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
+              
+              const SizedBox(width: 12),
+              
+              // SOS Button - Using predefined SOSButton widget
+              const SOSButton(),
             ],
           ),
-
-          const SizedBox(height: 16),
-
-          // Search and Filter Row
-          const Row(
+        ),
+        
+        // Search and Filter Section with transparent background
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+          color: Colors.transparent,
+          child: const Row(
             children: [
               Expanded(child: CustomSearchBar()),
               SizedBox(width: 12),
               FilterButton(),
             ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

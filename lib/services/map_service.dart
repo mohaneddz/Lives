@@ -132,42 +132,95 @@ class MapService {
     bool? scheduledOnly,
     LatLng? userLocation,
   }) {
+    print('🔍 MapService.filterPlaces called');
+    print('📍 Input places count: ${places.length}');
+    print('🏷️ Location types filter: $locationTypes');
+    print('📏 Distance filter: $distance');
+    print('✅ Verification filter: $verificationStatus');
+    print('⏰ Active only: $activeOnly');
+    print('🕐 Recent only: $recentOnly');
+    print('📅 Scheduled only: $scheduledOnly');
+    print('📍 User location: $userLocation');
+
     List<Place> filtered = List.from(places);
+    print('📊 Starting with ${filtered.length} places');
 
     // Filter by location types
     if (locationTypes != null && locationTypes.isNotEmpty) {
+      print('🏷️ Applying location type filter...');
+      final beforeCount = filtered.length;
       filtered = filtered.where((place) => locationTypes.contains(place.type)).toList();
+      print('🏷️ After location type filter: ${filtered.length} (was $beforeCount)');
+      
+      // Debug: show what types we found
+      final foundTypes = filtered.map((p) => p.type).toSet();
+      print('🏷️ Found types: $foundTypes');
     }
 
     // Filter by verification status
     if (verificationStatus != null) {
+      print('✅ Applying verification filter...');
+      final beforeCount = filtered.length;
       if (verificationStatus == VerificationStatus.verified) {
         filtered = filtered.where((place) => place.verificationStatus == VerificationStatus.verified).toList();
       } else {
         filtered = filtered.where((place) => place.verificationStatus == VerificationStatus.unverified).toList();
       }
+      print('✅ After verification filter: ${filtered.length} (was $beforeCount)');
     }
 
     // Filter by active status
     if (activeOnly == true) {
+      print('⏰ Applying active only filter...');
+      final beforeCount = filtered.length;
       filtered = filtered.where((place) => place.isActive).toList();
+      print('⏰ After active filter: ${filtered.length} (was $beforeCount)');
     }
 
     // Filter by recent (last 24 hours)
     if (recentOnly == true) {
+      print('🕐 Applying recent only filter...');
+      final beforeCount = filtered.length;
       final yesterday = DateTime.now().subtract(const Duration(hours: 24));
       filtered = filtered.where((place) => place.createdAt.isAfter(yesterday)).toList();
+      print('🕐 After recent filter: ${filtered.length} (was $beforeCount)');
+      print('🕐 Cutoff date: $yesterday');
     }
 
     // Filter by distance (if user location is provided)
     if (distance != null && userLocation != null) {
+      print('📏 Applying distance filter...');
+      final beforeCount = filtered.length;
       final Distance distanceCalc = const Distance();
       filtered = filtered.where((place) {
         final distanceInMeters = distanceCalc(userLocation, place.position);
-        return distanceInMeters <= distance * 1000; // Convert km to meters
+        final distanceInKm = distanceInMeters / 1000;
+        final withinRange = distanceInMeters <= distance;
+        if (!withinRange) {
+          print('📏 Excluding ${place.name}: ${distanceInKm.toStringAsFixed(2)}km > ${distance/1000}km');
+        }
+        return withinRange;
       }).toList();
+      print('📏 After distance filter: ${filtered.length} (was $beforeCount)');
     }
 
+    // Handle scheduled filter (you might need to add isScheduled property to Place model)
+    if (scheduledOnly == true) {
+      print('📅 Applying scheduled only filter...');
+      final beforeCount = filtered.length;
+      // Note: You'll need to add isScheduled property to your Place model
+      // For now, let's assume all places could be scheduled
+      // filtered = filtered.where((place) => place.isScheduled == true).toList();
+      print('📅 Scheduled filter not implemented yet - skipping');
+    }
+
+    print('✅ Final filtered places count: ${filtered.length}');
+    
+    // Debug: show final place names
+    if (filtered.length <= 10) {
+      print('📋 Filtered places: ${filtered.map((p) => p.name).join(', ')}');
+    }
+    
     return filtered;
   }
 }

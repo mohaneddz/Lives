@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../models/place.dart';
 import '../../services/map_service.dart';
 import 'map_event.dart';
 import 'map_state.dart';
