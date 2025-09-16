@@ -1,210 +1,274 @@
+import 'user.dart';
+
 enum ContributorType { individual, association }
 
 enum VerificationStatus { pending, verified, rejected }
 
 class Contributor {
-  final int? contributorId;
+  final int id;
   final int userId;
-  final ContributorType contributorType;
-  final VerificationStatus verificationStatus;
+  final String contributorType;
+  final String verificationStatus;
   final bool verified;
-  final String email;
+  final String motivation;
+  final DateTime createdAt;
+  // Additional properties for UI compatibility
   final String? firstName;
   final String? lastName;
-  final String phoneNumber;
-  final String? idCardPicture;
-  final String? selfiePicture;
+  final String? email;
+  final String? phoneNumber;
   final String? organizationName;
-  final String? organizationAddress;
-  final String? registrationCertificatePicture;
 
   const Contributor({
-    this.contributorId,
+    required this.id,
     required this.userId,
     required this.contributorType,
     required this.verificationStatus,
     required this.verified,
-    required this.email,
+    required this.motivation,
+    required this.createdAt,
     this.firstName,
     this.lastName,
-    required this.phoneNumber,
-    this.idCardPicture,
-    this.selfiePicture,
+    this.email,
+    this.phoneNumber,
     this.organizationName,
-    this.organizationAddress,
-    this.registrationCertificatePicture,
   });
 
   factory Contributor.fromJson(Map<String, dynamic> json) {
     return Contributor(
-      contributorId: json['contributor_id'] as int?,
+      id: json['id'] as int,
       userId: json['user_id'] as int,
-      contributorType: json['contributor_type'] == 'individual'
-          ? ContributorType.individual
-          : ContributorType.association,
-      verificationStatus: _parseVerificationStatus(
-        json['verification_status'] as String,
-      ),
+      contributorType: json['contributor_type'] as String,
+      verificationStatus: json['verification_status'] as String,
       verified: json['verified'] as bool,
-      email: json['email'] as String,
+      motivation: json['motivation'] as String,
+      createdAt: DateTime.parse(json['created_at'] as String),
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
-      phoneNumber: json['phone_number'] as String,
-      idCardPicture: json['id_card_picture'] as String?,
-      selfiePicture: json['selfie_picture'] as String?,
+      email: json['email'] as String?,
+      phoneNumber: json['phone_number'] as String?,
       organizationName: json['organization_name'] as String?,
-      organizationAddress: json['organization_address'] as String?,
-      registrationCertificatePicture:
-          json['registration_certificate_picture'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'contributor_id': contributorId,
+      'id': id,
       'user_id': userId,
-      'contributor_type': contributorType == ContributorType.individual
-          ? 'individual'
-          : 'association',
-      'verification_status': _verificationStatusToString(verificationStatus),
+      'contributor_type': contributorType,
+      'verification_status': verificationStatus,
       'verified': verified,
-      'email': email,
-      'first_name': firstName,
-      'last_name': lastName,
-      'phone_number': phoneNumber,
-      'id_card_picture': idCardPicture,
-      'selfie_picture': selfiePicture,
-      'organization_name': organizationName,
-      'organization_address': organizationAddress,
-      'registration_certificate_picture': registrationCertificatePicture,
+      'motivation': motivation,
+      'created_at': createdAt.toIso8601String(),
+      if (firstName != null) 'first_name': firstName,
+      if (lastName != null) 'last_name': lastName,
+      if (email != null) 'email': email,
+      if (phoneNumber != null) 'phone_number': phoneNumber,
+      if (organizationName != null) 'organization_name': organizationName,
     };
   }
 
-  static VerificationStatus _parseVerificationStatus(String status) {
-    switch (status) {
-      case 'pending':
-        return VerificationStatus.pending;
-      case 'verified':
-        return VerificationStatus.verified;
-      case 'rejected':
-        return VerificationStatus.rejected;
-      default:
-        return VerificationStatus.pending;
-    }
-  }
-
-  static String _verificationStatusToString(VerificationStatus status) {
-    switch (status) {
-      case VerificationStatus.pending:
-        return 'pending';
-      case VerificationStatus.verified:
-        return 'verified';
-      case VerificationStatus.rejected:
-        return 'rejected';
-    }
-  }
-
   Contributor copyWith({
-    int? contributorId,
+    int? id,
     int? userId,
-    ContributorType? contributorType,
-    VerificationStatus? verificationStatus,
+    String? contributorType,
+    String? verificationStatus,
     bool? verified,
-    String? email,
-    String? firstName,
-    String? lastName,
-    String? phoneNumber,
-    String? idCardPicture,
-    String? selfiePicture,
-    String? organizationName,
-    String? organizationAddress,
-    String? registrationCertificatePicture,
+    String? motivation,
+    DateTime? createdAt,
   }) {
     return Contributor(
-      contributorId: contributorId ?? this.contributorId,
+      id: id ?? this.id,
       userId: userId ?? this.userId,
       contributorType: contributorType ?? this.contributorType,
       verificationStatus: verificationStatus ?? this.verificationStatus,
       verified: verified ?? this.verified,
-      email: email ?? this.email,
-      firstName: firstName ?? this.firstName,
-      lastName: lastName ?? this.lastName,
-      phoneNumber: phoneNumber ?? this.phoneNumber,
-      idCardPicture: idCardPicture ?? this.idCardPicture,
-      selfiePicture: selfiePicture ?? this.selfiePicture,
-      organizationName: organizationName ?? this.organizationName,
-      organizationAddress: organizationAddress ?? this.organizationAddress,
-      registrationCertificatePicture:
-          registrationCertificatePicture ?? this.registrationCertificatePicture,
+      motivation: motivation ?? this.motivation,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }
 
 class ContributorRegistrationRequest {
-  final int userId;
-  final String contributorType;
-  final String verificationStatus;
-  final bool verified;
   final String email;
-  final String? firstName;
-  final String? lastName;
-  final String phoneNumber;
-  final String? idCardPicture;
-  final String? selfiePicture;
-  final String? organizationName;
-  final String? organizationAddress;
-  final String? registrationCertificatePicture;
+  final String password;
+  final String firstName;
+  final String lastName;
+  final String contributorType;
+  final String motivation;
 
   const ContributorRegistrationRequest({
-    required this.userId,
-    required this.contributorType,
-    required this.verificationStatus,
-    required this.verified,
     required this.email,
-    this.firstName,
-    this.lastName,
-    required this.phoneNumber,
-    this.idCardPicture,
-    this.selfiePicture,
-    this.organizationName,
-    this.organizationAddress,
-    this.registrationCertificatePicture,
+    required this.password,
+    required this.firstName,
+    required this.lastName,
+    required this.contributorType,
+    required this.motivation,
   });
 
   factory ContributorRegistrationRequest.fromJson(Map<String, dynamic> json) {
     return ContributorRegistrationRequest(
-      userId: json['user_id'] as int,
-      contributorType: json['contributor_type'] as String,
-      verificationStatus: json['verification_status'] as String,
-      verified: json['verified'] as bool,
       email: json['email'] as String,
-      firstName: json['first_name'] as String?,
-      lastName: json['last_name'] as String?,
-      phoneNumber: json['phone_number'] as String,
-      idCardPicture: json['id_card_picture'] as String?,
-      selfiePicture: json['selfie_picture'] as String?,
-      organizationName: json['organization_name'] as String?,
-      organizationAddress: json['organization_address'] as String?,
-      registrationCertificatePicture:
-          json['registration_certificate_picture'] as String?,
+      password: json['password'] as String,
+      firstName: json['first_name'] as String,
+      lastName: json['last_name'] as String,
+      contributorType: json['contributor_type'] as String,
+      motivation: json['motivation'] as String,
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': userId,
-      'contributor_type': contributorType,
-      'verification_status': verificationStatus,
-      'verified': verified,
       'email': email,
+      'password': password,
       'first_name': firstName,
       'last_name': lastName,
-      'phone_number': phoneNumber,
-      'id_card_picture': idCardPicture,
-      'selfie_picture': selfiePicture,
-      'organization_name': organizationName,
-      'organization_address': organizationAddress,
-      'registration_certificate_picture': registrationCertificatePicture,
+      'contributor_type': contributorType,
+      'motivation': motivation,
+    };
+  }
+}
+
+class ContributorRegistrationResponse {
+  final bool success;
+  final String? message;
+  final ContributorRegistrationData data;
+
+  const ContributorRegistrationResponse({
+    required this.success,
+    this.message,
+    required this.data,
+  });
+
+  factory ContributorRegistrationResponse.fromJson(Map<String, dynamic> json) {
+    return ContributorRegistrationResponse(
+      success: json['success'] as bool,
+      message: json['message'] as String?,
+      data: ContributorRegistrationData.fromJson(
+        json['data'] as Map<String, dynamic>,
+      ),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'success': success, 'message': message, 'data': data.toJson()};
+  }
+}
+
+class ContributorRegistrationData {
+  final User user;
+  final Contributor contributor;
+  final String accessToken;
+  final String refreshToken;
+  final String tokenType;
+
+  const ContributorRegistrationData({
+    required this.user,
+    required this.contributor,
+    required this.accessToken,
+    required this.refreshToken,
+    required this.tokenType,
+  });
+
+  factory ContributorRegistrationData.fromJson(Map<String, dynamic> json) {
+    return ContributorRegistrationData(
+      user: User.fromJson(json['user'] as Map<String, dynamic>),
+      contributor: Contributor.fromJson(
+        json['contributor'] as Map<String, dynamic>,
+      ),
+      accessToken: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String,
+      tokenType: json['token_type'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'user': user.toJson(),
+      'contributor': contributor.toJson(),
+      'access_token': accessToken,
+      'refresh_token': refreshToken,
+      'token_type': tokenType,
+    };
+  }
+}
+
+class ContributorLoginRequest {
+  final String email;
+  final String password;
+
+  const ContributorLoginRequest({required this.email, required this.password});
+
+  factory ContributorLoginRequest.fromJson(Map<String, dynamic> json) {
+    return ContributorLoginRequest(
+      email: json['email'] as String,
+      password: json['password'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'email': email, 'password': password};
+  }
+}
+
+class ContributorLoginResponse {
+  final bool success;
+  final String? message;
+  final ContributorLoginData data;
+
+  const ContributorLoginResponse({
+    required this.success,
+    this.message,
+    required this.data,
+  });
+
+  factory ContributorLoginResponse.fromJson(Map<String, dynamic> json) {
+    return ContributorLoginResponse(
+      success: json['success'] as bool,
+      message: json['message'] as String?,
+      data: ContributorLoginData.fromJson(json['data'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'success': success, 'message': message, 'data': data.toJson()};
+  }
+}
+
+class ContributorLoginData {
+  final User user;
+  final Contributor contributor;
+  final String accessToken;
+  final String refreshToken;
+  final String tokenType;
+
+  const ContributorLoginData({
+    required this.user,
+    required this.contributor,
+    required this.accessToken,
+    required this.refreshToken,
+    required this.tokenType,
+  });
+
+  factory ContributorLoginData.fromJson(Map<String, dynamic> json) {
+    return ContributorLoginData(
+      user: User.fromJson(json['user'] as Map<String, dynamic>),
+      contributor: Contributor.fromJson(
+        json['contributor'] as Map<String, dynamic>,
+      ),
+      accessToken: json['access_token'] as String,
+      refreshToken: json['refresh_token'] as String,
+      tokenType: json['token_type'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'user': user.toJson(),
+      'contributor': contributor.toJson(),
+      'access_token': accessToken,
+      'refresh_token': refreshToken,
+      'token_type': tokenType,
     };
   }
 }

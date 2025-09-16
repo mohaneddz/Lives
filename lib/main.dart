@@ -5,6 +5,9 @@ import 'bloc/map/map_bloc.dart';
 import 'bloc/navigation/navigation_bloc.dart';
 import 'bloc/user/user_bloc.dart';
 import 'bloc/user/user_event.dart';
+import 'bloc/auth/auth_bloc.dart';
+import 'bloc/auth/auth_event.dart';
+import 'services/auth_service.dart';
 import 'pages/main_app.dart';
 import 'styles/app_colors.dart';
 
@@ -38,6 +41,11 @@ class MyApp extends StatelessWidget {
           BlocProvider(create: (context) => MapBloc()),
           BlocProvider(create: (context) => NavigationBloc()),
           BlocProvider(create: (context) => UserBloc()..add(LoadUser())),
+          BlocProvider(
+            create: (context) =>
+                AuthBloc(authService: AuthService())
+                  ..add(const LoadAuthState()),
+          ),
         ],
         child: const MainScreen(),
       ),

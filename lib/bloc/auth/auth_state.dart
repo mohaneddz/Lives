@@ -5,6 +5,9 @@ import '../../models/contributor.dart';
 enum AuthStatus {
   initial,
   loading,
+  unauthenticated,
+  authenticated,
+  error,
   userTypeSelection,
   contributorTypeSelection,
   userRegistrationForm,
@@ -13,8 +16,6 @@ enum AuthStatus {
   userRegistered,
   contributorRegistered,
   emailVerified,
-  authenticated,
-  error,
 }
 
 class AuthState extends Equatable {
@@ -22,20 +23,24 @@ class AuthState extends Equatable {
   final User? user;
   final Contributor? contributor;
   final String? errorMessage;
+  final String? accessToken;
+  final String? refreshToken;
+  final String? token; // Legacy compatibility
   final bool isContributor;
-  final ContributorType? selectedContributorType;
+  final String? selectedContributorType;
   final bool isEmailVerified;
-  final String? token;
 
   const AuthState({
     this.status = AuthStatus.initial,
     this.user,
     this.contributor,
     this.errorMessage,
+    this.accessToken,
+    this.refreshToken,
+    this.token,
     this.isContributor = false,
     this.selectedContributorType,
     this.isEmailVerified = false,
-    this.token,
   });
 
   AuthState copyWith({
@@ -43,21 +48,25 @@ class AuthState extends Equatable {
     User? user,
     Contributor? contributor,
     String? errorMessage,
-    bool? isContributor,
-    ContributorType? selectedContributorType,
-    bool? isEmailVerified,
+    String? accessToken,
+    String? refreshToken,
     String? token,
+    bool? isContributor,
+    String? selectedContributorType,
+    bool? isEmailVerified,
   }) {
     return AuthState(
       status: status ?? this.status,
       user: user ?? this.user,
       contributor: contributor ?? this.contributor,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: errorMessage,
+      accessToken: accessToken ?? this.accessToken,
+      refreshToken: refreshToken ?? this.refreshToken,
+      token: token ?? this.token,
       isContributor: isContributor ?? this.isContributor,
       selectedContributorType:
           selectedContributorType ?? this.selectedContributorType,
       isEmailVerified: isEmailVerified ?? this.isEmailVerified,
-      token: token ?? this.token,
     );
   }
 
@@ -66,34 +75,20 @@ class AuthState extends Equatable {
   }
 
   AuthState reset() {
-    return const AuthState();
+    return const AuthState(status: AuthStatus.unauthenticated);
   }
 
   // Convenience getters
   bool get isAuthenticated =>
-      status == AuthStatus.authenticated && user != null && isEmailVerified;
-
-  bool get canProceedToNextStep =>
-      status != AuthStatus.loading && status != AuthStatus.error;
+      status == AuthStatus.authenticated && user != null && accessToken != null;
 
   bool get hasError => status == AuthStatus.error && errorMessage != null;
 
-  bool get isUserRegistered => user != null && user!.userId != null;
-
-  bool get needsEmailVerification => isUserRegistered && !isEmailVerified;
-
-  bool get isContributorFlow => isContributor;
-
-  bool get needsContributorTypeSelection =>
-      isContributor && selectedContributorType == null;
+  bool get isLoading => status == AuthStatus.loading;
 
   String get displayName {
     if (user != null) {
       return '${user!.firstName} ${user!.lastName}';
-    } else if (contributor != null && contributor!.organizationName != null) {
-      return contributor!.organizationName!;
-    } else if (contributor != null && contributor!.firstName != null) {
-      return '${contributor!.firstName} ${contributor!.lastName}';
     }
     return 'Unknown User';
   }
@@ -104,10 +99,12 @@ class AuthState extends Equatable {
     user,
     contributor,
     errorMessage,
+    accessToken,
+    refreshToken,
+    token,
     isContributor,
     selectedContributorType,
     isEmailVerified,
-    token,
   ];
 
   @override
@@ -117,10 +114,8 @@ class AuthState extends Equatable {
       user: $user,
       contributor: $contributor,
       errorMessage: $errorMessage,
-      isContributor: $isContributor,
-      selectedContributorType: $selectedContributorType,
-      isEmailVerified: $isEmailVerified,
-      token: $token,
+      accessToken: ${accessToken != null ? 'present' : 'null'},
+      refreshToken: ${refreshToken != null ? 'present' : 'null'},
     }''';
   }
 }

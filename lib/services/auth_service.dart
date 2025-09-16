@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 import '../models/contributor.dart';
-import '../models/verification.dart';
+import 'token_storage_service.dart';
 
 class AuthService {
-  static const String _baseUrl =
-      'https://your-api-base-url.com'; // Replace with actual API URL
+  // Use your computer's IP address instead of localhost for device access
+  static const String _baseUrl = 'http://192.168.100.23:5000/api';
 
   static const Map<String, String> _headers = {
     'Content-Type': 'application/json',
@@ -18,18 +18,29 @@ class AuthService {
     UserRegistrationRequest request,
   ) async {
     try {
-      final url = Uri.parse('$_baseUrl/users');
+      final url = Uri.parse('$_baseUrl/auth/register/user');
       final response = await http.post(
         url,
         headers: _headers,
         body: json.encode(request.toJson()),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return UserRegistrationResponse.fromJson(responseData);
+        final userResponse = UserRegistrationResponse.fromJson(responseData);
+
+        // Store authentication data
+        await TokenStorageService.storeAuthData(
+          accessToken: userResponse.data.accessToken,
+          refreshToken: userResponse.data.refreshToken,
+          tokenType: userResponse.data.tokenType,
+          userData: userResponse.data.user.toJson(),
+        );
+
+        return userResponse;
       } else {
-        throw AuthException('Failed to register user: ${response.statusCode}');
+        final errorData = json.decode(response.body);
+        throw AuthException(errorData['message'] ?? 'Registration failed');
       }
     } catch (e) {
       if (e is SocketException) {
@@ -43,26 +54,37 @@ class AuthService {
   }
 
   // Register a contributor
-  Future<ApiResponse<Map<String, dynamic>>> registerContributor(
+  Future<ContributorRegistrationResponse> registerContributor(
     ContributorRegistrationRequest request,
   ) async {
     try {
-      final url = Uri.parse('$_baseUrl/contributors');
+      final url = Uri.parse('$_baseUrl/auth/register/contributor');
       final response = await http.post(
         url,
         headers: _headers,
         body: json.encode(request.toJson()),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
+      if (response.statusCode == 201) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return ApiResponse<Map<String, dynamic>>.fromJson(
+        final contributorResponse = ContributorRegistrationResponse.fromJson(
           responseData,
-          (json) => json as Map<String, dynamic>,
         );
+
+        // Store authentication data
+        await TokenStorageService.storeAuthData(
+          accessToken: contributorResponse.data.accessToken,
+          refreshToken: contributorResponse.data.refreshToken,
+          tokenType: contributorResponse.data.tokenType,
+          userData: contributorResponse.data.user.toJson(),
+          contributorData: contributorResponse.data.contributor.toJson(),
+        );
+
+        return contributorResponse;
       } else {
+        final errorData = json.decode(response.body);
         throw AuthException(
-          'Failed to register contributor: ${response.statusCode}',
+          errorData['message'] ?? 'Contributor registration failed',
         );
       }
     } catch (e) {
@@ -76,12 +98,10 @@ class AuthService {
     }
   }
 
-  // Verify email with code
-  Future<EmailVerificationResponse> verifyEmail(
-    EmailVerificationRequest request,
-  ) async {
+  // User login
+  Future<UserLoginResponse> loginUser(UserLoginRequest request) async {
     try {
-      final url = Uri.parse('$_baseUrl/users/validate-email');
+      final url = Uri.parse('$_baseUrl/auth/login/user');
       final response = await http.post(
         url,
         headers: _headers,
@@ -90,11 +110,20 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return EmailVerificationResponse.fromJson(responseData);
-      } else {
-        throw AuthException(
-          'Email verification failed: ${response.statusCode}',
+        final loginResponse = UserLoginResponse.fromJson(responseData);
+
+        // Store authentication data
+        await TokenStorageService.storeAuthData(
+          accessToken: loginResponse.data.accessToken,
+          refreshToken: loginResponse.data.refreshToken,
+          tokenType: loginResponse.data.tokenType,
+          userData: loginResponse.data.user.toJson(),
         );
+
+        return loginResponse;
+      } else {
+        final errorData = json.decode(response.body);
+        throw AuthException(errorData['message'] ?? 'Login failed');
       }
     } catch (e) {
       if (e is SocketException) {
@@ -102,17 +131,17 @@ class AuthService {
       } else if (e is AuthException) {
         rethrow;
       } else {
-        throw AuthException('Email verification failed: $e');
+        throw AuthException('Login failed: $e');
       }
     }
   }
 
-  // Resend verification email
-  Future<ApiResponse<Map<String, dynamic>>> resendVerificationEmail(
-    ResendVerificationRequest request,
+  // Contributor login
+  Future<ContributorLoginResponse> loginContributor(
+    ContributorLoginRequest request,
   ) async {
     try {
-      final url = Uri.parse('$_baseUrl/users/resend-verification-email');
+      final url = Uri.parse('$_baseUrl/auth/login/contributor');
       final response = await http.post(
         url,
         headers: _headers,
@@ -121,14 +150,21 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return ApiResponse<Map<String, dynamic>>.fromJson(
-          responseData,
-          (json) => json as Map<String, dynamic>,
+        final loginResponse = ContributorLoginResponse.fromJson(responseData);
+
+        // Store authentication data
+        await TokenStorageService.storeAuthData(
+          accessToken: loginResponse.data.accessToken,
+          refreshToken: loginResponse.data.refreshToken,
+          tokenType: loginResponse.data.tokenType,
+          userData: loginResponse.data.user.toJson(),
+          contributorData: loginResponse.data.contributor.toJson(),
         );
+
+        return loginResponse;
       } else {
-        throw AuthException(
-          'Failed to resend verification email: ${response.statusCode}',
-        );
+        final errorData = json.decode(response.body);
+        throw AuthException(errorData['message'] ?? 'Contributor login failed');
       }
     } catch (e) {
       if (e is SocketException) {
@@ -136,30 +172,41 @@ class AuthService {
       } else if (e is AuthException) {
         rethrow;
       } else {
-        throw AuthException('Failed to resend verification email: $e');
+        throw AuthException('Contributor login failed: $e');
       }
     }
   }
 
-  // Get user profile (if needed)
-  Future<ApiResponse<User>> getUserProfile(int userId, String token) async {
+  // Token refresh
+  Future<TokenRefreshResponse> refreshToken() async {
     try {
-      final url = Uri.parse('$_baseUrl/users/$userId');
-      final response = await http.get(
+      final refreshToken = await TokenStorageService.getRefreshToken();
+      if (refreshToken == null) {
+        throw AuthException('No refresh token available');
+      }
+
+      final request = TokenRefreshRequest(refreshToken: refreshToken);
+      final url = Uri.parse('$_baseUrl/auth/refresh');
+      final response = await http.post(
         url,
-        headers: {..._headers, 'Authorization': 'Bearer $token'},
+        headers: _headers,
+        body: json.encode(request.toJson()),
       );
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = json.decode(response.body);
-        return ApiResponse<User>.fromJson(
-          responseData,
-          (json) => User.fromJson(json as Map<String, dynamic>),
+        final refreshResponse = TokenRefreshResponse.fromJson(responseData);
+
+        // Update stored tokens
+        await TokenStorageService.updateAccessToken(
+          accessToken: refreshResponse.data.accessToken,
+          tokenType: refreshResponse.data.tokenType,
         );
+
+        return refreshResponse;
       } else {
-        throw AuthException(
-          'Failed to get user profile: ${response.statusCode}',
-        );
+        final errorData = json.decode(response.body);
+        throw AuthException(errorData['message'] ?? 'Token refresh failed');
       }
     } catch (e) {
       if (e is SocketException) {
@@ -167,87 +214,174 @@ class AuthService {
       } else if (e is AuthException) {
         rethrow;
       } else {
-        throw AuthException('Failed to get user profile: $e');
+        throw AuthException('Token refresh failed: $e');
       }
     }
   }
 
-  // Create UserRegistrationRequest helper
-  static UserRegistrationRequest createUserRegistrationRequest({
-    required String email,
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-  }) {
-    return UserRegistrationRequest(
-      userType: 'registered',
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      phoneNumber: phoneNumber,
-      isEmailVerified: false,
-      registrationDate: DateTime.now(),
-    );
+  // Logout
+  Future<void> logout() async {
+    try {
+      await TokenStorageService.clearAuthData();
+    } catch (e) {
+      throw AuthException('Logout failed: $e');
+    }
   }
 
-  // Create ContributorRegistrationRequest helper for individual
-  static ContributorRegistrationRequest createIndividualContributorRequest({
-    required int userId,
-    required String email,
-    required String firstName,
-    required String lastName,
-    required String phoneNumber,
-    String? idCardPicture,
-    String? selfiePicture,
-  }) {
-    return ContributorRegistrationRequest(
-      userId: userId,
-      contributorType: 'individual',
-      verificationStatus: 'pending',
-      verified: false,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      phoneNumber: phoneNumber,
-      idCardPicture: idCardPicture,
-      selfiePicture: selfiePicture,
-      organizationName: null,
-      organizationAddress: null,
-      registrationCertificatePicture: null,
-    );
+  // Check if authenticated
+  Future<bool> isAuthenticated() async {
+    return await TokenStorageService.isAuthenticated();
   }
 
-  // Create ContributorRegistrationRequest helper for association
-  static ContributorRegistrationRequest createAssociationContributorRequest({
-    required int userId,
-    required String email,
-    required String phoneNumber,
-    required String organizationName,
-    required String organizationAddress,
-    String? registrationCertificatePicture,
-  }) {
-    return ContributorRegistrationRequest(
-      userId: userId,
-      contributorType: 'association',
-      verificationStatus: 'pending',
-      verified: false,
-      email: email,
-      firstName: null,
-      lastName: null,
-      phoneNumber: phoneNumber,
-      idCardPicture: null,
-      selfiePicture: null,
-      organizationName: organizationName,
-      organizationAddress: organizationAddress,
-      registrationCertificatePicture: registrationCertificatePicture,
-    );
+  // Get current user data
+  Future<User?> getCurrentUser() async {
+    try {
+      final userData = await TokenStorageService.getUserData();
+      if (userData != null) {
+        return User.fromJson(userData);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Get current contributor data
+  Future<Contributor?> getCurrentContributor() async {
+    try {
+      final contributorData = await TokenStorageService.getContributorData();
+      if (contributorData != null) {
+        return Contributor.fromJson(contributorData);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Make authenticated request with automatic token refresh
+  Future<http.Response> makeAuthenticatedRequest({
+    required String method,
+    required String endpoint,
+    Map<String, dynamic>? body,
+    bool retry = true,
+  }) async {
+    final authHeaders = await TokenStorageService.getAuthHeaders();
+    if (authHeaders == null) {
+      throw AuthException('User not authenticated');
+    }
+
+    final url = Uri.parse('$_baseUrl$endpoint');
+    http.Response response;
+
+    try {
+      switch (method.toUpperCase()) {
+        case 'GET':
+          response = await http.get(url, headers: authHeaders);
+          break;
+        case 'POST':
+          response = await http.post(
+            url,
+            headers: authHeaders,
+            body: body != null ? json.encode(body) : null,
+          );
+          break;
+        case 'PUT':
+          response = await http.put(
+            url,
+            headers: authHeaders,
+            body: body != null ? json.encode(body) : null,
+          );
+          break;
+        case 'DELETE':
+          response = await http.delete(url, headers: authHeaders);
+          break;
+        default:
+          throw AuthException('Unsupported HTTP method: $method');
+      }
+
+      // If unauthorized and we haven't retried yet, try refreshing token
+      if (response.statusCode == 401 && retry) {
+        try {
+          await refreshToken();
+          return makeAuthenticatedRequest(
+            method: method,
+            endpoint: endpoint,
+            body: body,
+            retry: false,
+          );
+        } catch (e) {
+          // Refresh failed, user needs to login again
+          await logout();
+          throw AuthException('Session expired. Please login again.');
+        }
+      }
+
+      return response;
+    } catch (e) {
+      if (e is SocketException) {
+        throw AuthException('No internet connection');
+      } else if (e is AuthException) {
+        rethrow;
+      } else {
+        throw AuthException('Request failed: $e');
+      }
+    }
   }
 }
 
 class AuthException implements Exception {
   final String message;
+  final int? statusCode;
+  final String? type;
 
-  const AuthException(this.message);
+  const AuthException(this.message, {this.statusCode, this.type});
+
+  factory AuthException.fromResponse(
+    Map<String, dynamic> errorData,
+    int statusCode,
+  ) {
+    return AuthException(
+      errorData['message'] ?? 'Unknown error occurred',
+      statusCode: statusCode,
+      type: errorData['error'] ?? 'UNKNOWN_ERROR',
+    );
+  }
+
+  factory AuthException.networkError() {
+    return const AuthException(
+      'No internet connection. Please check your network and try again.',
+      type: 'NETWORK_ERROR',
+    );
+  }
+
+  factory AuthException.timeout() {
+    return const AuthException(
+      'Request timed out. Please try again.',
+      type: 'TIMEOUT_ERROR',
+    );
+  }
+
+  factory AuthException.serverError() {
+    return const AuthException(
+      'Server error occurred. Please try again later.',
+      type: 'SERVER_ERROR',
+    );
+  }
+
+  factory AuthException.unauthorized() {
+    return const AuthException(
+      'Session expired. Please login again.',
+      statusCode: 401,
+      type: 'UNAUTHORIZED',
+    );
+  }
+
+  bool get isNetworkError => type == 'NETWORK_ERROR';
+  bool get isUnauthorized => statusCode == 401 || type == 'UNAUTHORIZED';
+  bool get isServerError =>
+      (statusCode != null && statusCode! >= 500) || type == 'SERVER_ERROR';
+  bool get isValidationError => statusCode == 400;
 
   @override
   String toString() => 'AuthException: $message';

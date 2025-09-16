@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import '../../bloc/auth/auth.dart';
-import '../../models/contributor.dart';
 
 class AuthStatusWidget extends StatelessWidget {
   const AuthStatusWidget({super.key});
@@ -13,73 +12,88 @@ class AuthStatusWidget extends StatelessWidget {
       body: BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           return SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 60),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      MediaQuery.of(context).size.height -
+                      MediaQuery.of(context).padding.top -
+                      MediaQuery.of(context).padding.bottom -
+                      48,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 60),
 
-                  // Success Icon
-                  Container(
-                    alignment: Alignment.center,
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.green.withOpacity(0.1),
-                        shape: BoxShape.circle,
+                      // Success Icon
+                      Container(
+                        alignment: Alignment.center,
+                        child: Container(
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            LucideIcons.checkCircle,
+                            size: 64,
+                            color: Colors.green,
+                          ),
+                        ),
                       ),
-                      child: const Icon(
-                        LucideIcons.checkCircle,
-                        size: 64,
-                        color: Colors.green,
+
+                      const SizedBox(height: 32),
+
+                      // Title
+                      Text(
+                        _getTitle(state),
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
+                        textAlign: TextAlign.center,
                       ),
-                    ),
+
+                      const SizedBox(height: 16),
+
+                      // Description
+                      Text(
+                        _getDescription(state),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      // User Info Card
+                      if (state.user != null)
+                        _buildUserInfoCard(context, state),
+
+                      // Contributor Info Card
+                      if (state.contributor != null)
+                        _buildContributorInfoCard(context, state),
+
+                      const Spacer(),
+
+                      // Action Buttons
+                      if (state.status == AuthStatus.authenticated)
+                        _buildAuthenticatedButtons(context)
+                      else if (state.status == AuthStatus.contributorRegistered)
+                        _buildContributorButtons(context)
+                      else if (state.status == AuthStatus.emailVerified &&
+                          state.isContributor)
+                        _buildEmailVerifiedButtons(context),
+
+                      const SizedBox(height: 24), // Extra padding at bottom
+                    ],
                   ),
-
-                  const SizedBox(height: 32),
-
-                  // Title
-                  Text(
-                    _getTitle(state),
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Description
-                  Text(
-                    _getDescription(state),
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey[600]),
-                    textAlign: TextAlign.center,
-                  ),
-
-                  const SizedBox(height: 40),
-
-                  // User Info Card
-                  if (state.user != null) _buildUserInfoCard(context, state),
-
-                  // Contributor Info Card
-                  if (state.contributor != null)
-                    _buildContributorInfoCard(context, state),
-
-                  const Spacer(),
-
-                  // Action Buttons
-                  if (state.status == AuthStatus.authenticated)
-                    _buildAuthenticatedButtons(context)
-                  else if (state.status == AuthStatus.contributorRegistered)
-                    _buildContributorButtons(context)
-                  else if (state.status == AuthStatus.emailVerified &&
-                      state.isContributor)
-                    _buildEmailVerifiedButtons(context),
-                ],
+                ),
               ),
             ),
           );
@@ -148,7 +162,7 @@ class AuthStatusWidget extends StatelessWidget {
               '${state.user!.firstName} ${state.user!.lastName}',
             ),
             _buildInfoRow('Email', state.user!.email),
-            _buildInfoRow('Phone', state.user!.phoneNumber),
+            _buildInfoRow('Phone', state.user!.phoneNumber ?? 'Not provided'),
             _buildInfoRow(
               'Status',
               state.isEmailVerified ? 'Verified' : 'Pending Verification',
@@ -171,8 +185,7 @@ class AuthStatusWidget extends StatelessWidget {
             Row(
               children: [
                 Icon(
-                  state.contributor!.contributorType ==
-                          ContributorType.individual
+                  state.contributor!.contributorType == 'individual'
                       ? LucideIcons.user
                       : LucideIcons.building,
                   color: Theme.of(context).primaryColor,
@@ -190,7 +203,7 @@ class AuthStatusWidget extends StatelessWidget {
             const SizedBox(height: 12),
             _buildInfoRow(
               'Type',
-              state.contributor!.contributorType == ContributorType.individual
+              state.contributor!.contributorType == 'individual'
                   ? 'Individual'
                   : 'Association',
             ),
@@ -204,8 +217,11 @@ class AuthStatusWidget extends StatelessWidget {
                 'Name',
                 '${state.contributor!.firstName} ${state.contributor!.lastName}',
               ),
-            _buildInfoRow('Email', state.contributor!.email),
-            _buildInfoRow('Phone', state.contributor!.phoneNumber),
+            _buildInfoRow('Email', state.contributor!.email ?? 'Not provided'),
+            _buildInfoRow(
+              'Phone',
+              state.contributor!.phoneNumber ?? 'Not provided',
+            ),
             _buildInfoRow('Verification Status', 'Pending'),
           ],
         ),

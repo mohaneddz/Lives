@@ -14,11 +14,16 @@ class IndividualContributorForm extends StatefulWidget {
 class _IndividualContributorFormState extends State<IndividualContributorForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _motivationController = TextEditingController();
 
   bool _isFormValid = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   String? _idCardPath;
   String? _selfiePath;
 
@@ -26,17 +31,23 @@ class _IndividualContributorFormState extends State<IndividualContributorForm> {
   void initState() {
     super.initState();
     _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+    _confirmPasswordController.addListener(_validateForm);
     _firstNameController.addListener(_validateForm);
     _lastNameController.addListener(_validateForm);
     _phoneController.addListener(_validateForm);
+    _motivationController.addListener(_validateForm);
   }
 
   @override
   void dispose() {
     _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
     _phoneController.dispose();
+    _motivationController.dispose();
     super.dispose();
   }
 
@@ -124,6 +135,59 @@ class _IndividualContributorFormState extends State<IndividualContributorForm> {
 
                 const SizedBox(height: 20),
 
+                // Password Field
+                _buildPasswordField(
+                  controller: _passwordController,
+                  label: 'Password',
+                  hint: 'Enter your password',
+                  obscureText: _obscurePassword,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Password is required';
+                    }
+                    if (value.length < 8) {
+                      return 'Password must be at least 8 characters';
+                    }
+                    if (!RegExp(
+                      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)',
+                    ).hasMatch(value)) {
+                      return 'Password must contain uppercase, lowercase and number';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Confirm Password Field
+                _buildPasswordField(
+                  controller: _confirmPasswordController,
+                  label: 'Confirm Password',
+                  hint: 'Confirm your password',
+                  obscureText: _obscureConfirmPassword,
+                  onToggleVisibility: () {
+                    setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != _passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
                 // First Name Field
                 _buildInputField(
                   controller: _firstNameController,
@@ -175,6 +239,24 @@ class _IndividualContributorFormState extends State<IndividualContributorForm> {
                     }
                     if (value.length < 10) {
                       return 'Please enter a valid phone number';
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 20),
+
+                // Motivation Field
+                _buildTextAreaField(
+                  controller: _motivationController,
+                  label: 'Motivation',
+                  hint: 'Tell us why you want to be a contributor...',
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please share your motivation';
+                    }
+                    if (value.length < 20) {
+                      return 'Please provide more details (at least 20 characters)';
                     }
                     return null;
                   },
@@ -340,6 +422,118 @@ class _IndividualContributorFormState extends State<IndividualContributorForm> {
     );
   }
 
+  Widget _buildPasswordField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required bool obscureText,
+    required VoidCallback onToggleVisibility,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            prefixIcon: Icon(LucideIcons.lock, color: Colors.grey[500]),
+            suffixIcon: IconButton(
+              icon: Icon(
+                obscureText ? LucideIcons.eyeOff : LucideIcons.eye,
+                color: Colors.grey[500],
+              ),
+              onPressed: onToggleVisibility,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTextAreaField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          maxLines: 4,
+          validator: validator,
+          decoration: InputDecoration(
+            hintText: hint,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey[300]!),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Theme.of(context).primaryColor),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            filled: true,
+            fillColor: Colors.grey[50],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildDocumentUpload({
     required String title,
     required String description,
@@ -428,13 +622,13 @@ class _IndividualContributorFormState extends State<IndividualContributorForm> {
   void _onRegisterPressed() {
     if (_formKey.currentState?.validate() == true) {
       context.read<AuthBloc>().add(
-        RegisterIndividualContributor(
+        RegisterContributor(
           email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
           firstName: _firstNameController.text.trim(),
           lastName: _lastNameController.text.trim(),
-          phoneNumber: _phoneController.text.trim(),
-          idCardPicture: _idCardPath,
-          selfiePicture: _selfiePath,
+          contributorType: 'individual',
+          motivation: _motivationController.text.trim(),
         ),
       );
     }

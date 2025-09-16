@@ -11,7 +11,6 @@ import '../widgets/individual_contributor_form.dart';
 import '../widgets/association_contributor_form.dart';
 import '../widgets/email_verification.dart';
 import '../widgets/auth_status.dart';
-import '../models/contributor.dart';
 
 class AccountScreen extends StatelessWidget {
   const AccountScreen({super.key});
@@ -61,6 +60,7 @@ class AccountScreenContent extends StatelessWidget {
             case AuthStatus.loading:
               return _buildLoadingScreen(context);
 
+            case AuthStatus.unauthenticated:
             case AuthStatus.userTypeSelection:
               return const UserTypeSelectionWidget();
 
@@ -71,7 +71,7 @@ class AccountScreenContent extends StatelessWidget {
               return const UserRegistrationForm();
 
             case AuthStatus.contributorRegistrationForm:
-              if (state.selectedContributorType == ContributorType.individual) {
+              if (state.selectedContributorType == 'individual') {
                 return const IndividualContributorForm();
               } else {
                 return const AssociationContributorForm();

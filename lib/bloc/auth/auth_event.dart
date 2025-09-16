@@ -11,73 +11,81 @@ abstract class AuthEvent extends Equatable {
 // User registration events
 class RegisterUser extends AuthEvent {
   final String email;
+  final String password;
   final String firstName;
   final String lastName;
   final String phoneNumber;
+  final String preferredLanguage;
 
   const RegisterUser({
     required this.email,
+    required this.password,
     required this.firstName,
     required this.lastName,
     required this.phoneNumber,
+    this.preferredLanguage = 'en',
   });
 
   @override
-  List<Object> get props => [email, firstName, lastName, phoneNumber];
-}
-
-// Contributor registration events
-class RegisterIndividualContributor extends AuthEvent {
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String phoneNumber;
-  final String? idCardPicture;
-  final String? selfiePicture;
-
-  const RegisterIndividualContributor({
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.phoneNumber,
-    this.idCardPicture,
-    this.selfiePicture,
-  });
-
-  @override
-  List<Object?> get props => [
+  List<Object> get props => [
     email,
+    password,
     firstName,
     lastName,
     phoneNumber,
-    idCardPicture,
-    selfiePicture,
+    preferredLanguage,
   ];
 }
 
-class RegisterAssociationContributor extends AuthEvent {
+// User login events
+class LoginUser extends AuthEvent {
   final String email;
-  final String phoneNumber;
-  final String organizationName;
-  final String organizationAddress;
-  final String? registrationCertificatePicture;
+  final String password;
 
-  const RegisterAssociationContributor({
+  const LoginUser({required this.email, required this.password});
+
+  @override
+  List<Object> get props => [email, password];
+}
+
+// Contributor registration events
+class RegisterContributor extends AuthEvent {
+  final String email;
+  final String password;
+  final String firstName;
+  final String lastName;
+  final String contributorType;
+  final String motivation;
+
+  const RegisterContributor({
     required this.email,
-    required this.phoneNumber,
-    required this.organizationName,
-    required this.organizationAddress,
-    this.registrationCertificatePicture,
+    required this.password,
+    required this.firstName,
+    required this.lastName,
+    required this.contributorType,
+    required this.motivation,
   });
 
   @override
-  List<Object?> get props => [
+  List<Object> get props => [
     email,
-    phoneNumber,
-    organizationName,
-    organizationAddress,
-    registrationCertificatePicture,
+    password,
+    firstName,
+    lastName,
+    contributorType,
+    motivation,
   ];
+}
+
+// Contributor login events
+class LoginContributor extends AuthEvent {
+  final String email;
+  final String password;
+
+  const LoginContributor({required this.email, required this.password});
+
+  @override
+  List<Object> get props => [email, password];
 }
 
 // Email verification events
@@ -128,4 +136,59 @@ class LoadAuthState extends AuthEvent {
 
 class Logout extends AuthEvent {
   const Logout();
+}
+
+// Legacy events for Individual Contributors
+class RegisterIndividualContributor extends AuthEvent {
+  final String email;
+  final String firstName;
+  final String lastName;
+  final String phoneNumber;
+  final String idCardPicture;
+  final String selfiePicture;
+
+  const RegisterIndividualContributor({
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+    required this.phoneNumber,
+    required this.idCardPicture,
+    required this.selfiePicture,
+  });
+
+  @override
+  List<Object> get props => [
+    email,
+    firstName,
+    lastName,
+    phoneNumber,
+    idCardPicture,
+    selfiePicture,
+  ];
+}
+
+// Legacy events for Association Contributors
+class RegisterAssociationContributor extends AuthEvent {
+  final String email;
+  final String phoneNumber;
+  final String organizationName;
+  final String organizationAddress;
+  final String registrationCertificatePicture;
+
+  const RegisterAssociationContributor({
+    required this.email,
+    required this.phoneNumber,
+    required this.organizationName,
+    required this.organizationAddress,
+    required this.registrationCertificatePicture,
+  });
+
+  @override
+  List<Object> get props => [
+    email,
+    phoneNumber,
+    organizationName,
+    organizationAddress,
+    registrationCertificatePicture,
+  ];
 }
